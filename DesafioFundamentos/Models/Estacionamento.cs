@@ -28,8 +28,7 @@ namespace DesafioFundamentos.Models
       // Pedir para o usuário digitar a placa e armazenar na variável placa
       Console.WriteLine("Digite a placa do veículo para remover:");
       string placa = Console.ReadLine();
-
-
+      
       var veiculo = veiculos.FirstOrDefault(x => x.Placa.ToUpper() == placa.ToUpper());
       // Verifica se o veículo existe
       if (veiculo != null)
@@ -39,37 +38,54 @@ namespace DesafioFundamentos.Models
         DateTime.TryParse(horaSaida,out var horaFormatada);
 
         var totalHoras = horaFormatada - veiculo.DataEntrada;
+        var valorTotal = precoInicial+((decimal)totalHoras.TotalHours*precoPorHora);
+
         if(totalHoras.TotalHours < 1 && totalHoras.TotalMinutes <= 15){
           Console.WriteLine($"O veículo {veiculo.Placa} ficou menos de 15 minutos");
           Console.WriteLine($"Estadia minima não foi alcançada, Retirada Gratuita:");
           Console.WriteLine("1 - Confirmar");
-          Console.WriteLine("qualquer outro - Cancelar");
-          if( Console.ReadLine() == "1"){
-            Console.WriteLine($"O veículo {veiculo.Placa} foi retirado do estacionamento e não precisou pagar nada.");
-            veiculos.Remove(veiculo);
-          }
+          valorTotal = 0;
+          ValidaRetirada(veiculo, valorTotal);
         }
         else
         {
-          var valorTotal = precoInicial+((decimal)totalHoras.TotalHours*precoPorHora);
           Console.WriteLine($"O veículo {veiculo.Placa} ficou {totalHoras.TotalHours} horas.");
           Console.WriteLine($"O valor a ser pago será R${valorTotal}");
           Console.WriteLine($"Confirme o pagamento:");
           Console.WriteLine("1 - Confirmar");
-          Console.WriteLine("qualquer outro - Cancelar");
-
-          if( Console.ReadLine() == "1"){
-            Console.WriteLine($"O veículo {veiculo.Placa} foi retirado do estacionamento e o preço total pago foi de: R$ {valorTotal}");
-            veiculos.Remove(veiculo);
-          }
-          else{
-            Console.WriteLine($"O pagamento foi cancelado.");
-          }
+          ValidaRetirada(veiculo, valorTotal);
         }
       }
       else
       {
         Console.WriteLine("Desculpe, esse veículo não está estacionado aqui. Confira se digitou a placa corretamente");
+      }
+    }
+
+    private void ValidaRetirada(Veiculos veiculo, decimal valorTotal)
+    {
+      if (Console.ReadLine() == "1")
+      {
+        if(valorTotal > 0)
+        {
+          Console.WriteLine($"O veículo {veiculo.Placa} foi retirado do estacionamento e o preço total pago foi de: R$ {valorTotal}");
+        }
+        else
+        {
+            Console.WriteLine($"O veículo {veiculo.Placa} foi retirado do estacionamento e não precisou pagar nada.");
+        }
+        veiculos.Remove(veiculo);
+      }
+      else
+      {        
+        if(valorTotal > 0)
+        {
+          Console.WriteLine($"O pagamento foi cancelado.");
+        }
+        else
+        {
+          Console.WriteLine($"A retirada foi cancelada.");
+        }
       }
     }
 
